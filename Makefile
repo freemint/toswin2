@@ -6,8 +6,8 @@ SHELL = /bin/sh
 SUBDIRS = tw-call
 
 srcdir = .
-top_srcdir = ..
-subdir = toswin2
+top_srcdir = .
+subdir = .
 
 installdir = /opt/GEM/toswin2
 cpu = all

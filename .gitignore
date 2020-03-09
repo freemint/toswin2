@@ -1,2 +1,13 @@
+.deps
+.compile_*
 doc/toswin2.hyp
 doc/toswin2.ref
+*.o
+*.a
+*.acc
+*.app
+*.prg
+*.gtp
+*.tos
+*.ttp
+*.exe

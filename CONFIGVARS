@@ -1,0 +1,134 @@
+# 
+# cross compiling
+#
+ifneq (yes,$(M68K_ATARI_MINT_CROSS))
+ifeq (no,$(M68K_ATARI_MINT_CROSS))
+CROSS = no
+else
+EVAL_CROSS := case `uname -s` in *MiNT*) echo no;; *) echo yes; esac
+CROSS := $(shell $(EVAL_CROSS))
+endif
+else
+CROSS = yes
+endif
+
+#
+# target and host compiler
+# 
+ifeq ($(CROSS),yes)
+
+CROSSPREFIX=m68k-atari-mint-
+
+LANG=C
+NATIVECC = gcc
+NATIVECFLAGS = -O -Wall
+CRLF = echo crlf -s
+
+GENERAL = $(M68K_ATARI_MINT_CFLAGS) $(M68K_ATARI_MINT_LDFLAGS) -fgnu89-inline
+
+NATIVE_COLDFIRE := 0
+
+else
+
+NATIVE_COLDFIRE := $(shell if uname -s -p | grep 'MiNT.*V4e'; then echo 1; else echo 0; fi)
+
+CROSSPREFIX=
+
+NATIVECC = gcc
+NATIVECFLAGS = -O -Wall
+CRLF  = crlf -s
+
+ifeq ($(NATIVE_COLDFIRE),1)
+NATIVECFLAGS += -mcpu=5475
+endif
+
+endif
+
+# If you want to use libcmini instead of mintlib
+# for a smaller footprint of your TOS executables, call the Makefile with LIBCMINI=yes.
+# libcmini must be installed parallel to the freemint top dir for this to work
+ifeq (yes,$(LIBCMINI))
+LIBCMINI_PATH := $(top_srcdir)/../../libcmini
+ifeq (v4e,$(CPU))
+LIBCMINI_CPU := m5475
+else ifeq (000,$(CPU))
+LIBCMINI_CPU := .
+else
+LIBCMINI_CPU := m68020-60
+endif
+LIBCMINI_INCPATH := $(LIBCMINI_PATH)/include
+LIBCMINI_LIBPATH := $(LIBCMINI_PATH)/lib/$(LIBCMINI_CPU)
+LIBCMINI_STARTUP := $(LIBCMINI_LIBPATH)/startup.o
+endif
+
+#
+# similar to libcmini, but use a custom version instead.
+#
+ifeq ($(MINILIB),yes)
+MINILIB_DIR = ../$(top_srcdir)/minilib
+ifeq (v4e,$(CPU))
+MINILIB_CPU := m5475
+else ifeq (000,$(CPU))
+MINILIB_CPU := .
+else
+MINILIB_CPU := m68020-60
+endif
+ifeq (-mshort,$(MSHORT))
+MINILIB_CPU := $(MINILIB_CPU)/mshort
+endif
+LIBMINI_LIBPATH := $(MINILIB_DIR)/$(MINILIB_CPU)
+LIBMINI_INCPATH = $(MINILIB_DIR)/include
+LIBMINI_STARTUP = $(MINILIB_DIR)/crt0.o
+endif
+
+CC = $(CROSSPREFIX)gcc
+AS = $(CC)
+AR = $(CROSSPREFIX)ar
+RANLIB = $(CROSSPREFIX)ranlib
+STRIP = $(CROSSPREFIX)strip
+FLAGS = $(CROSSPREFIX)flags
+OBJDUMP = $(CROSSPREFIX)objdump
+STACK = $(CROSSPREFIX)stack
+
+# 
+# some tools
+# 
+YACC  = bison -dk
+LEX   = flex
+MV    = mv
+CP    = cp
+RM    = rm -f
+TOUCH = touch
+MKDIR = mkdir
+SED   = sed
+
+#
+# optimizations
+# 
+OPTS = -O2 -fomit-frame-pointer
+
+#
+# warning options
+#
+WARN = \
+	-Wall \
+	-Wmissing-prototypes \
+	-Wshadow \
+	-Wpointer-arith \
+	-Waggregate-return
+#	-Werror
+
+#
+# default definitions
+#
+DEFINITIONS = 
+
+#
+# model type
+#
+MODEL = 
+
+.PHONY: printvars
+printvars:
+	@$(foreach V,$(.VARIABLES), $(if $(filter-out environment% default automatic, $(origin $V)),$(warning $V=$($V))))
+
