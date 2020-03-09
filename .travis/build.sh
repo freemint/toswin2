@@ -7,7 +7,7 @@ make
 
 mkdir -p "${TMP}/toswin2"
 
-make PREFIX="${TMP}/toswin2" install
+make installdir="${TMP}/toswin2" install
 
 find "${TMP}" -type f -perm -a=x -exec m68k-atari-mint-strip -s {} \;
 find "${TMP}" -type f \( -name '*.a' -o -name '*.o' \) -exec m68k-atari-mint-strip -S -X -w -N '.L[0-9]*' {} \;
