@@ -18,6 +18,12 @@ else
 MODEL =
 endif
 
+#
+# global CFLAGS
+#
+INCLUDES = -I$(top_srcdir)
+CFLAGS = $(INCLUDES) $(DEFINITIONS) $(MODEL) $(GENERAL) $(OPTS) $(WARN)
+
 all: all-recursive all-here
 
 clean:: clean-recursive
