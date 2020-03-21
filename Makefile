@@ -88,7 +88,9 @@ else
 	chmod 755 $(installdir)/toswin2.app $(installdir)/tw-call.app
 	$(STRIP) $(installdir)/toswin2.app $(installdir)/tw-call.app
 endif
-	$(CP) -r $(srcdir)/doc $(installdir)
+	$(MKDIR) -p $(installdir)/doc
+	-$(CP) $(srcdir)/doc/toswin2.hyp $(installdir)/doc
+	-$(CP) $(srcdir)/doc/toswin2.ref $(installdir)/doc
 	$(CP) $(srcdir)/english/toswin2.rsc $(installdir)
 	$(CP) -r $(srcdir)/screenshots $(installdir)
 	$(CP) $(srcdir)/BUGS $(installdir)
