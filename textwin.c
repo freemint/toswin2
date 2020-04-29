@@ -43,7 +43,7 @@ static MFDB scr_mfdb;	/* left NULL so it refers to the screen by default */
 /*
  * lokale Prototypen
 */
-static void draw_buf(TEXTWIN *t, char *buf, short x, short y, ulong flag, short force);
+static void draw_buf(TEXTWIN *t, char *buf, short x, short y, unsigned long flag, short force);
 static void update_chars(TEXTWIN *t, short firstcol, short lastcol, short firstline, short lastline, short force);
 static void update_screen (TEXTWIN *t, short xc, short yc, short wc, short hc,
 			   short force);
@@ -614,7 +614,7 @@ draw_acs_text(TEXTWIN* t, short textcolor, short x, short y, char* buf)
  * SPECIAL CASE: if buf is an empty string, we clear from "x" to
  * the end of the window.
  */
-static void draw_buf(TEXTWIN *t, char *buf, short x, short y, ulong flag, short force)
+static void draw_buf(TEXTWIN *t, char *buf, short x, short y, unsigned long flag, short force)
 {
 	char *s, *lastnonblank;
 	int x2, fillcolor, textcolor;
@@ -697,10 +697,10 @@ update_chars (TEXTWIN *t, short firstcol, short lastcol, short firstline,
 	char buf[CBUFSIZ+1];
 	unsigned char c;
 	short px, py, ax, i, cnt, bufwidth;
-	ulong flag;
+	unsigned long flag;
 	short *WIDE = t->cwidths;
 	short lineforce = 0;
-	ulong curflag;
+	unsigned long curflag;
 
 #define flushbuf()	\
 	{ 		\
@@ -1046,7 +1046,7 @@ update_screen (TEXTWIN *t, short xc, short yc, short wc, short hc,
 	/* if `force' is set, clear the area to be redrawn -- it looks better */
 	if (force == CLEARED)
 	{
-		ulong flag = 0;
+		unsigned long flag = 0;
 		WINCFG* cfg = t->cfg;
 		int bg_color, fg_color, style;
 
@@ -1803,7 +1803,7 @@ TEXTWIN *create_textwin(char *title, WINCFG *cfg)
 	TEXTWIN *t;
 	short firstchar, lastchar, distances[5], maxwidth, effects[3];
 	short i;
-	ulong flag;
+	unsigned long flag;
 #ifndef ONLY_XAAES
 	short bwidth, bheight, dummy;
 #endif

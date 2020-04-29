@@ -793,7 +793,7 @@ static void write_int(char *var, int value)
 	fprintf(fd, "%s=%d\n", var, value);
 }
 
-static void write_ulong(char *var, ulong value)
+static void write_ulong(char *var, unsigned long value)
 {
 	fprintf(fd, "%s=%lu\n", var, value);
 }

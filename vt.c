@@ -19,7 +19,7 @@ void paint(TEXTWIN *v, unsigned int c)
 	int i;
 	int line = v->cy;
 
-	ulong use_attribute = ~CLINEDRAW & v->curr_cattr;
+	unsigned long use_attribute = ~CLINEDRAW & v->curr_cattr;
 	char charset = v->gsets[v->curr_tflags & TCHARSET_MASK];
 	
 	if ((charset == '0') &&
