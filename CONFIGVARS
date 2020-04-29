@@ -44,43 +44,6 @@ endif
 
 endif
 
-# If you want to use libcmini instead of mintlib
-# for a smaller footprint of your TOS executables, call the Makefile with LIBCMINI=yes.
-# libcmini must be installed parallel to the freemint top dir for this to work
-ifeq (yes,$(LIBCMINI))
-LIBCMINI_PATH := $(top_srcdir)/../../libcmini
-ifeq (v4e,$(CPU))
-LIBCMINI_CPU := m5475
-else ifeq (000,$(CPU))
-LIBCMINI_CPU := .
-else
-LIBCMINI_CPU := m68020-60
-endif
-LIBCMINI_INCPATH := $(LIBCMINI_PATH)/include
-LIBCMINI_LIBPATH := $(LIBCMINI_PATH)/lib/$(LIBCMINI_CPU)
-LIBCMINI_STARTUP := $(LIBCMINI_LIBPATH)/startup.o
-endif
-
-#
-# similar to libcmini, but use a custom version instead.
-#
-ifeq ($(MINILIB),yes)
-MINILIB_DIR = ../$(top_srcdir)/minilib
-ifeq (v4e,$(CPU))
-MINILIB_CPU := m5475
-else ifeq (000,$(CPU))
-MINILIB_CPU := .
-else
-MINILIB_CPU := m68020-60
-endif
-ifeq (-mshort,$(MSHORT))
-MINILIB_CPU := $(MINILIB_CPU)/mshort
-endif
-LIBMINI_LIBPATH := $(MINILIB_DIR)/$(MINILIB_CPU)
-LIBMINI_INCPATH = $(MINILIB_DIR)/include
-LIBMINI_STARTUP = $(MINILIB_DIR)/crt0.o
-endif
-
 CC = $(CROSSPREFIX)gcc
 AS = $(CC)
 AR = $(CROSSPREFIX)ar
