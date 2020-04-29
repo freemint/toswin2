@@ -144,7 +144,7 @@ static void open_conwd(WDIALOG *wd)
 
 static int exit_conwd(WDIALOG *wd, short exit_obj)
 {
-	bool	close = FALSE;
+	bool	closeit = FALSE;
 	char	path[128], name[128];
 
 	switch (exit_obj)
@@ -170,7 +170,7 @@ static int exit_conwd(WDIALOG *wd, short exit_obj)
 			break;
 
 		case CABBRUCH :
-			close = TRUE;
+			closeit = TRUE;
 			break;
 
 		case COK :
@@ -181,13 +181,13 @@ static int exit_conwd(WDIALOG *wd, short exit_obj)
 			gl_con_log = log_console(get_state(wd->tree, CLOGACTIVE, OS_SELECTED));
 			set_state(wd->tree, CLOGACTIVE, OS_SELECTED, gl_con_log);
 
-			close = TRUE;
+			closeit = TRUE;
 			break;
 	}
-	if (close)
+	if (closeit)
 		wdial_close(wd);
 
-	return close;
+	return closeit;
 }
 
 void conconfig_open(void)
@@ -337,7 +337,7 @@ static void open_cfgwd(WDIALOG *wd)
 static int exit_cfgwd(WDIALOG *wd, short exit_obj)
 {
 	char		str[32];
-	bool		close = FALSE, ok;
+	bool		closeit = FALSE, ok;
 	WINCFG	*cfg;
 	int		y;
 
@@ -415,7 +415,7 @@ static int exit_cfgwd(WDIALOG *wd, short exit_obj)
 			break;
 
 		case WABBRUCH :
-			close = TRUE;
+			closeit = TRUE;
 			break;
 
 		case WOK :
@@ -485,14 +485,14 @@ static int exit_cfgwd(WDIALOG *wd, short exit_obj)
 			if (cfg_win)
 				reconfig_textwin(cfg_win, cfg);
 
-			close = TRUE;
+			closeit = TRUE;
 			break;
 	}
 
-	if (close)
+	if (closeit)
 		wdial_close(wd);
 
-	return close;
+	return closeit;
 }
 
 void winconfig_open(void)
