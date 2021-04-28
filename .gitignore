@@ -2,4 +2,6 @@
 .compile_*
 doc/toswin2.hyp
 doc/toswin2.ref
+doc/en/toswin2.hyp
+doc/en/toswin2.ref
 *~
