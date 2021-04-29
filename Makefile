@@ -20,7 +20,7 @@ include $(top_srcdir)/CONFIGVARS
 include $(top_srcdir)/RULES
 include $(top_srcdir)/PHONY
 
-all-here: all-targets doc/toswin2.hyp doc/en/toswin2.hyp
+all-here: all-targets doc/toswin2.hyp doc/en/toswin2.hyp doc/fr/toswin2.hyp
 
 # default overwrites
 
@@ -80,7 +80,15 @@ doc/en/toswin2.hyp: doc/en/toswin2.stg
 		echo "HCP not found, help file not compiled" >&2; \
 	fi
 
-install: $(cpu) doc/toswin2.hyp doc/en/toswin2.hyp
+doc/fr/toswin2.hyp: doc/fr/toswin2.stg
+	@if test "$(HCP)" != ""; then hcp="$(HCP)"; else hcp=hcp; fi; \
+	if test "$$hcp" != "" && $$hcp --version >/dev/null 2>&1; then \
+		$$hcp -o $@ $<; \
+	else \
+		echo "HCP not found, help file not compiled" >&2; \
+	fi
+
+install: $(cpu) doc/toswin2.hyp doc/en/toswin2.hyp doc/fr/toswin2.hyp
 	$(MKDIR) -p $(installdir)
 ifeq ($(cpu), all)
 	@set -x; \
@@ -98,10 +106,13 @@ else
 endif
 	$(MKDIR) -p $(installdir)/doc/de
 	$(MKDIR) -p $(installdir)/doc/en
+	$(MKDIR) -p $(installdir)/doc/fr
 	-$(CP) $(srcdir)/doc/toswin2.hyp $(installdir)/doc/de
 	-$(CP) $(srcdir)/doc/toswin2.ref $(installdir)/doc/de
 	-$(CP) $(srcdir)/doc/en/toswin2.hyp $(installdir)/doc/en
 	-$(CP) $(srcdir)/doc/en/toswin2.ref $(installdir)/doc/en
+	-$(CP) $(srcdir)/doc/fr/toswin2.hyp $(installdir)/doc/fr
+	-$(CP) $(srcdir)/doc/fr/toswin2.ref $(installdir)/doc/fr
 	$(CP) $(srcdir)/english/toswin2.rsc $(installdir)
 	$(CP) -r $(srcdir)/screenshots $(installdir)
 	$(CP) $(srcdir)/BUGS $(installdir)
@@ -149,4 +160,4 @@ endif
 buildtoswin2: $(realtarget)
 
 clean::
-	$(RM) doc/toswin2.hyp doc/toswin2.ref
+	$(RM) doc/toswin2.hyp doc/toswin2.ref doc/en/toswin2.hyp doc/en/toswin2.ref doc/fr/toswin2.hyp doc/fr/toswin2.ref

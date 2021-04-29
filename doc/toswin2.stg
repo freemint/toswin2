@@ -10,7 +10,8 @@
 @subject "Dokumentation/Sonstiges"
 @options "+z -s"
 
-@node "Titel" "TosWin2: Inhalt"
+@node "Main" "TosWin2: Inhalt"
+@alias "Titel"
 
 @limage logo.img 36
                                  TosWin2
