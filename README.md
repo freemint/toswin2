@@ -1,1 +1,3 @@
-[![Build Status](https://travis-ci.org/freemint/toswin2.svg?branch=master)](https://travis-ci.org/freemint/toswin2) [ ![Download](https://api.bintray.com/packages/freemint/app/toswin2/images/download.svg) ](https://bintray.com/freemint/app/toswin2/_latestVersion)
+[![Build Status](https://github.com/freemint/toswin2/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/freemint/toswin2/actions) 
+
+Latest snapshot: [Download](https://tho-otto.de/snapshots/toswin2/)
