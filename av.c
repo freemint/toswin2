@@ -224,25 +224,69 @@ debug("Unbekannte AV-Meldung: %d, %X\n", msg[0], msg[0]);
 	}
 }
 
+#define DL_PATHMAX	256
+#define DL_NAMEMAX	64
+
 void call_stguide(char *data, bool with_hyp)
 {
 	int	stg_id;
+	char *path, fname[9];
+	char command[DL_PATHMAX];
+	char *ptr;
+	char str[80] = "*:\\toswin2.hyp ";
 
-	stg_id = appl_find("ST-GUIDE");
+	shel_envrn(&path, "HELPVIEWER=");
+	if (path)
+	{
+		int i;
+
+		ptr = strrchr(path, '\\');
+		if (!ptr++)
+			ptr = path;
+
+		strncpy(fname, ptr, 8);
+		fname[8] = '\0';
+		ptr = strrchr(fname, '.');
+		if (ptr)
+			*ptr = '\0';
+		for (i = strlen(fname); i < 8; i++)
+			strcat(fname, " ");
+	} else
+	{
+		strcpy(fname, "ST-GUIDE");
+	}
+
+	stg_id = appl_find(fname);
 	if (stg_id > 0)
 	{
 		if (with_hyp)
 		{
-			char	str[80] = "*:\\toswin2.hyp ";
-
 			strcat(str, data);
 			send_vastart(stg_id, str);
-		}
-		else
+		} else
+		{
 			send_vastart(stg_id, data);
+		}
+	} else
+	{
+		if (with_hyp)
+		{
+			strcpy(command + 1, str);
+			strcat(command + 1, "'");
+			strcat(command + 1, data);
+			strcat(command + 1, "'");
+		} else
+		{
+			strcpy(command + 1, data);
+		}
+		command[0] = (char)strlen(command + 1);
+
+		if (path)
+			stg_id = shel_write(SHW_EXEC, 1, SHW_PARALLEL, path, command);
+
+		if (stg_id < 0)
+			alert(1, 0, NOSTGUIDE);
 	}
-	else
-		alert(1, 0, NOSTGUIDE);
 }
 
 
