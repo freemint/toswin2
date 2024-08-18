@@ -417,7 +417,7 @@ fd_input(void)
 			if (con_win == NULL && con_fd > 0 && (readfds & (1L << con_fd)))
 			{
 				long int read_bytes = Fread(con_fd, (long)READBUFSIZ, buf);
-				if (read_bytes > 0) {
+				if (read_bytes > 0 && !(read_bytes == 1 && buf[0] == '\007')) {
 					if (gl_con_output) {
 						open_console();
 						write_text(con_win, buf, read_bytes);
