@@ -56,7 +56,7 @@ static void close_con_fd(void)
 	}
 }
 
-void open_console(void)
+void create_console(bool open)
 {
 	WINCFG	*cfg;
 	char		str[30];
@@ -87,7 +87,8 @@ void open_console(void)
 			(*con_win->output)(con_win, '\033');
 			(*con_win->output)(con_win, 'e');
 
-			open_window(con_win->win, cfg->iconified);
+			if (open)
+				open_window(con_win->win, cfg->iconified);
 		}
 		else
 		{
@@ -134,6 +135,9 @@ void handle_console(char *txt, long len)
 
 	if (con_win != NULL)
 	{
+		WINCFG *cfg = get_wincfg(console_progname);
+		open_window(con_win->win, cfg->iconified);
+
 		if (con_win->win->flags == WICONIFIED)
 		{
 			is_dirty = TRUE;

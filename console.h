@@ -14,7 +14,7 @@ extern TEXTWIN *con_win;	/* console window */
 extern char const console_progname[];
 
 
-void	open_console	(void);
+void	create_console	(bool open);
 bool	log_console	(bool on);
 bool	out_console	(bool on);
 void	handle_console	(char *txt, long len);

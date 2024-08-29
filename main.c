@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 	event_init();
 
 	if (gl_con_auto)
-		open_console();
+		create_console(TRUE);
 
 #if 0
 	if (gl_debug)

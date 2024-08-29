@@ -410,20 +410,8 @@ fd_input(void)
 		readfds = fdmask;
 		if ((r = Fselect(1, &readfds, 0L, 0L)) > 0)
 		{
-			bool consoleHandled = FALSE;
-			/* handle closed console separately so we can open it only if read_bytes >0 */
-			if (con_win == NULL && con_fd > 0 && (readfds & (1L << con_fd)))
-			{
-				long int read_bytes = Fread(con_fd, (long)READBUFSIZ, buf);
-				if (read_bytes > 0 && !(read_bytes == 1 && buf[0] == '\007')) {
-					if (gl_con_output) {
-						open_console();
-						write_text(con_win, buf, read_bytes);
-						consoleHandled = TRUE;
-					}
-					handle_console(buf, read_bytes);
-				}
-			}
+			if (gl_con_output && con_win == NULL && con_fd > 0 && (readfds & (1L << con_fd)))
+				create_console(FALSE);
 
 			for (w = gl_winlist; w; w = w->next)
 			{
@@ -436,18 +424,15 @@ fd_input(void)
 
 				if (readfds & (1L << t->fd))
 				{
-					if (t->fd != con_fd || !consoleHandled)
+					long int read_bytes = Fread(t->fd, (long)READBUFSIZ, buf);
+					if (read_bytes > 0)
 					{
-						long int read_bytes = Fread(t->fd, (long)READBUFSIZ, buf);
-						if (read_bytes > 0)
-						{
-							write_text(t, buf, read_bytes);
-							if (t->fd == con_fd)
-								handle_console(buf, read_bytes);
-						}
-						else
-							checkdead |= (1L << t->fd);
+						write_text(t, buf, read_bytes);
+						if (t->fd == con_fd)
+							handle_console(buf, read_bytes);
 					}
+					else
+						checkdead |= (1L << t->fd);
 				}
 			}
 		}

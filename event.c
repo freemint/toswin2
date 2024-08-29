@@ -136,7 +136,7 @@ static void handle_menu(int title, int item, bool help)
 
 /* Fenster */			
 			case MCONSOLE :
-				open_console();
+				create_console(TRUE);
 				break;
 	
 			case MCYCLE :
