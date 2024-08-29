@@ -21,7 +21,6 @@ all-here: build
 
 # default overwrites
 #CFLAGS += -DDEBUG -g
-#CFLAGS += -DONLY_XAAES
 
 # default definitions
 OBJS = $(COBJS:.c=.o)

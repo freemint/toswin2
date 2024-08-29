@@ -182,8 +182,6 @@ new_proc(char *progname, char *arg, char *env, char *progdir,
 		}
 # endif
 		chdir(progdir);
-	//	sprintf(str, "\r\n progdir '%s'\r\n", progdir);
-	//	Cconws(str);
 		i = (int)Pexec(200, progname, arg, env);
 		
 		sprintf(str, "\r\n  Pexec failed (err = %d)!\r\n", i);

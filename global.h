@@ -34,11 +34,10 @@ extern OBJECT	*winicon,
 		*strings;
 extern char **stringarray;
 
-extern int	exit_code;		/* Enthlt den Exitcode eines Kindprozesses */
+extern int	exit_code;		/* Enth„lt den Exitcode eines Kindprozesses */
 extern int	vdi_handle;
 extern int	font_anz;
 extern int	draw_ticks;
-extern short	wco;
 #define MAX_DRAW_TICKS 3
 extern int	curs_ticks;
 

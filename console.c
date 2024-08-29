@@ -17,16 +17,9 @@ static bool	is_dirty = FALSE;
 
 static void uniconify_con(WINDOW *v, short x, short y, short w, short h)
 {
-	if (v->wco)
-	{
-		wind_xset_grect(v->handle, WF_UNICONIFY, &v->prev, &v->work);
-	}
-	else
-	{
-		wind_calc(WC_BORDER, v->kind, v->prev.g_x, v->prev.g_y, v->prev.g_w, v->prev.g_h, &x, &y, &w, &h);
-  		wind_set(v->handle, WF_UNICONIFY, x, y, w, h);
-		wind_get_grect(v->handle, WF_WORKXYWH, &v->work);
-	}
+	wind_calc(WC_BORDER, v->kind, v->prev.g_x, v->prev.g_y, v->prev.g_w, v->prev.g_h, &x, &y, &w, &h);
+  	wind_set(v->handle, WF_UNICONIFY, x, y, w, h);
+	wind_get_grect(v->handle, WF_WORKXYWH, &v->work);
 	v->mouseinp = v->oldmouse;
 	v->flags &= ~WICONIFIED;
 	(*v->topped)(v);
@@ -118,8 +111,8 @@ void handle_console(char *txt, long len)
 {
 	/*
 	 * Wenn das erste Zeichen ein Ping ist, wird auf weitere Pings
-	 * geprft. Werden nur Pings gefunden, wird die Funktion verlassen,
-	 * damit das Fenster nicht unntig aufgeht.
+	 * geprft. Werden nur Pings gefunden, wird die Funktion verlassen,
+	 * damit das Fenster nicht unn”tig aufgeht.
 	*/
 	if (txt[0] == 7)
 	{

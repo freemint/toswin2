@@ -19,7 +19,7 @@ bool	gl_shortcut = TRUE;
 bool	gl_allogin = TRUE;
 
 bool	gl_con_auto = FALSE;		/* beim Start anlegen */
-bool	gl_con_output = TRUE;		/* bei Ausgaben ffnen */
+bool	gl_con_output = TRUE;		/* bei Ausgaben îffnen */
 bool	gl_con_log = FALSE;		/* Datei-Loggin */
 char	gl_con_logname[128] = "U:\\ram\\con.log";
 
@@ -30,7 +30,7 @@ WINCFG	*gl_wincfg = NULL;
 */
 static WDIALOG	*cfg_wd, *con_wd;
 static WINCFG	*p_cfg = NULL;
-static TEXTWIN	*cfg_win;		/* Fenster, fr die der Dialog offen ist */
+static TEXTWIN	*cfg_win;		/* Fenster, fÅr die der Dialog offen ist */
 static short	new_id, new_pts;	/* neuer Font von FONTSEL */
 static int	new_term, new_fg, new_bg, new_tab;
 static char	new_log[128];
@@ -905,7 +905,7 @@ void config_init(void)
 	rsrc_gaddr(R_TREE, POPUPS, &popups);
 	fix_dial(popups);
 
-	/* Default-Cfg in die Liste, wird beim Laden ggf. berschrieben! */
+	/* Default-Cfg in die Liste, wird beim Laden ggf. Åberschrieben! */
 	crt_newcfg("default");
 }
 
