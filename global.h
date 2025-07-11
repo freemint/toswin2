@@ -16,7 +16,11 @@
 #ifdef TRUE
 # undef TRUE
 #endif
-typedef enum {FALSE, TRUE} bool;
+#define FALSE 0
+#define TRUE  1
+#if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 202311L
+typedef int bool;
+#endif
 
 #define TW2NAME	"TOSWIN2 "
 
