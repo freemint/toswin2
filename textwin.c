@@ -1196,7 +1196,7 @@ static void move_textwin(WINDOW *v, short x, short y, short w, short h)
 
 	if (!(v->flags & WICONIFIED))
 	{
-		/* das sind BORDER-Gr”žen! */
+		/* das sind BORDER-Grï¿½ï¿½en! */
 		t->cfg->xpos = x;
 		t->cfg->ypos = y;
 	}
@@ -1865,7 +1865,7 @@ void destroy_textwin(TEXTWIN *t)
 	free(t->dirty);
 	free(t->cwidths);
 
-	/* Prozež korrekt abmelden */
+	/* Prozeï¿½ korrekt abmelden */
 	term_proc(t);
 
 	free(t);
@@ -1985,17 +1985,16 @@ change_scrollback (TEXTWIN* tw, short scrollback)
 			(sizeof tmp_cflag) * (-diff));
 	} else {
 		int i;
-		/* Scrollback is becoming bigger.  */
-		if (tw->maxy + diff > tw->alloc_height)
+		unsigned short saved_height = tw->alloc_height;
+		short aliased_count;
+
+		/* Scrollback is becoming bigger.  We open `diff' new (empty)
+		   lines at the top of the buffer; existing content (visible
+		   plus any prior scrollback) slides down by `diff' slots
+		   intact.  */
+		if (tw->maxy + diff > saved_height)
 		{
-			unsigned short saved_height = tw->alloc_height;
-
-			size_t data_chunk;
-			size_t cflag_chunk;
-
 			tw->alloc_height = (tw->maxy + diff + 15) & 0xfffffff0;
-			data_chunk = (sizeof tw->cdata[0][0]) * tw->alloc_width;
-			cflag_chunk = (sizeof tw->cflags[0][0]) * tw->alloc_width;
 
 			tw->dirty = realloc (tw->dirty, (sizeof *tw->dirty) * tw->alloc_height);
 			if (tw->dirty == NULL)
@@ -2007,27 +2006,58 @@ change_scrollback (TEXTWIN* tw, short scrollback)
 			if (tw->cflags == NULL)
 				goto bail_out;
 
-			for (i = saved_height; i < tw->alloc_height; ++i)
-			{
-				tw->cdata[i] = malloc (data_chunk);
-				tw->cflags[i] = malloc (cflag_chunk);
-
-				if (tw->cdata[i] == NULL || tw->cflags[i] == NULL)
-					goto bail_out;
-			}
+			/* NULL the freshly-extended pointer slots so the
+			   malloc loop below can use NULL to mean "needs a
+			   fresh buffer", and so bail_out won't try to free
+			   garbage.  */
+			memset (tw->cdata + saved_height, 0,
+				(tw->alloc_height - saved_height) * sizeof tw->cdata[0]);
+			memset (tw->cflags + saved_height, 0,
+				(tw->alloc_height - saved_height) * sizeof tw->cflags[0]);
 		}
 
-		memmove (tw->dirty, tw->dirty + diff,
-			 (sizeof *tw->dirty) * tw->maxy);
-
-		memset (tw->dirty, 0,
-			  (sizeof tw->dirty[0]) * tw->maxy);
-
+		/* Slide live content (cdata[0..maxy)) down by `diff' slots so
+		   it ends up at [diff..diff+maxy).  This is a pointer-array
+		   memmove only -- the per-line buffers themselves are
+		   untouched.  */
 		memmove (tw->cdata + diff, tw->cdata,
 			 (sizeof *tw->cdata) * tw->maxy);
 		memmove (tw->cflags + diff, tw->cflags,
 			 (sizeof *tw->cflags) * tw->maxy);
+		memmove (tw->dirty + diff, tw->dirty,
+			 (sizeof *tw->dirty) * tw->maxy);
 
+		/* The slide left aliased pointer copies at
+		   [0..min(diff,maxy)) -- they now duplicate the slots at
+		   [diff..diff+min(diff,maxy)).  Clear them so the malloc
+		   loop below can fill in fresh buffers without leaving
+		   doubly-referenced pointers in the array (which would later
+		   cause a double-free in change_width()'s realloc loop).  */
+		aliased_count = (diff < tw->maxy) ? diff : tw->maxy;
+		memset (tw->cdata, 0, aliased_count * sizeof tw->cdata[0]);
+		memset (tw->cflags, 0, aliased_count * sizeof tw->cflags[0]);
+
+		/* Malloc fresh line buffers for every empty slot.  Non-NULL
+		   slots are either the slid content at [diff..diff+maxy) or
+		   pre-existing padding (already valid buffers) that we reuse
+		   in place.  */
+		for (i = 0; i < tw->alloc_height; ++i)
+		{
+			if (tw->cdata[i] == NULL)
+			{
+				tw->cdata[i] = malloc ((sizeof tw->cdata[0][0]) * tw->alloc_width);
+				if (tw->cdata[i] == NULL)
+					goto bail_out;
+			}
+			if (tw->cflags[i] == NULL)
+			{
+				tw->cflags[i] = malloc ((sizeof tw->cflags[0][0]) * tw->alloc_width);
+				if (tw->cflags[i] == NULL)
+					goto bail_out;
+			}
+		}
+
+		/* Initialise the new scrollback rows at the top of the buffer.  */
 		for (i = 0; i < diff; ++i) {
 			memset (tw->cdata[i], ' ', (sizeof tw->cdata[0][0]) * NCOLS (tw));
 
@@ -2040,6 +2070,7 @@ change_scrollback (TEXTWIN* tw, short scrollback)
 					 NCOLS (tw));
 		}
 
+		memset (tw->dirty, 0, (sizeof tw->dirty[0]) * diff);
 	}
 
 	tw->miny += diff;
@@ -2305,7 +2336,7 @@ reconfig_textwin(TEXTWIN *t, WINCFG *cfg)
 
 	refresh_textwin(t, FALSE);
 
-	/* cfg->vt_mode wird bewužt ignoriert -> wirkt erst bei neuem Fenster */
+	/* cfg->vt_mode wird bewuï¿½t ignoriert -> wirkt erst bei neuem Fenster */
 }
 
 /* set the "cwidths" array for the given window correctly;
