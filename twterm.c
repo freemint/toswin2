@@ -78,7 +78,7 @@ static void insert_char(TEXTWIN* tw, int x, int y)
 		twcflag[i] = twcflag[i - 1] | CDIRTY;
 	}
 	twdata[x] = ' ';
-	twcflag[x] = CDIRTY | (tw->curr_cattr & (CBGCOL | CFGCOL));
+	twcflag[x] = CDIRTY | (tw->curr_cattr & CCOLOR);
 	tw->dirty[y] |= SOMEDIRTY;
 	tw->do_wrap = 0;
 }
@@ -106,15 +106,21 @@ capture (TEXTWIN* tw, unsigned int c)
 	}
 }
 
+/* VT52 ESC b / ESC c color handlers (used when the tw100 window is in
+   VT52 sub-mode).  See the matching pair in vt52.c.  */
 static void fgcol_putch (TEXTWIN *v, unsigned int c)
 {
-	v->curr_cattr = (v->curr_cattr & ~CFGCOL) | ((c & 0x0f) << 4);
+	v->curr_cattr = (v->curr_cattr & ~CFGCOL)
+		| (((unsigned long) vt52_pixel_to_vdi[c & 0x0f]) << 4)
+		| CFGRAW;
 	v->output = vt100_putch;
 }
 
 static void bgcol_putch (TEXTWIN *v, unsigned int c)
 {
-	v->curr_cattr = (v->curr_cattr & ~CBGCOL) | (c & 0x0f);
+	v->curr_cattr = (v->curr_cattr & ~CBGCOL)
+		| vt52_pixel_to_vdi[c & 0x0f]
+		| CBGRAW;
 	v->output = vt100_putch;
 }
 
@@ -173,8 +179,7 @@ static void
 fill_window (TEXTWIN* tw, unsigned int c)
 {
 	int row;
-	unsigned long new_attribute = tw->curr_cattr &
-		(CBGCOL | CFGCOL);
+	unsigned long new_attribute = tw->curr_cattr & CCOLOR;
 	int cols = NCOLS (tw);
 
 	for (row = tw->miny; row < tw->maxy; ++row) {
@@ -1077,7 +1082,11 @@ static void vt100_esc_attr(TEXTWIN* tw, unsigned int c)
 				tw->curr_cattr |= CINVERSE;
 				break;
 			case 8: /* Concealed on.  */
-				tw->curr_cattr = ((tw->curr_cattr & CBGCOL) << 4) | (tw->curr_cattr & ~(CE_ANSI_EFFECTS | CFGCOL));
+				/* fg := bg (CBGCOL << 4 == CFGCOL,
+				   CBGRAW << 1 == CFGRAW); bg unchanged.  */
+				tw->curr_cattr = ((tw->curr_cattr & CBGCOL) << 4)
+					| ((tw->curr_cattr & CBGRAW) << 1)
+					| (tw->curr_cattr & ~(CE_ANSI_EFFECTS | CFGCOL | CFGRAW));
 				break;
 			case 9:		/* Crossed-out characters, ECMA-48 3rd. */
 				break;

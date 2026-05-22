@@ -36,18 +36,26 @@ static void capture(TEXTWIN *v, unsigned int c)
 	}
 }
 
-/* Legacy functions for color support.	*/
+/* VT52 ESC b / ESC c color handlers.  The low 4 bits of C are a logical
+   Atari "pixel value"; map them through the standard Atari pixel-value
+   to VDI-palette-index table and mark the cattr so the renderer treats
+   the stored value as a literal VDI index rather than an ANSI logical
+   color.  */
 static
 void fgcol_putch (TEXTWIN *v, unsigned int c)
 {
-	v->curr_cattr = (v->curr_cattr & ~CFGCOL) | ((c & 0x0f) << 4);
+	v->curr_cattr = (v->curr_cattr & ~CFGCOL)
+		| (((unsigned long) vt52_pixel_to_vdi[c & 0x0f]) << 4)
+		| CFGRAW;
 	v->output = vt52_putch;
 }
 
 static
 void bgcol_putch (TEXTWIN *v, unsigned int c)
 {
-	v->curr_cattr = (v->curr_cattr & ~CBGCOL) | (c & 0x0f);
+	v->curr_cattr = (v->curr_cattr & ~CBGCOL)
+		| vt52_pixel_to_vdi[c & 0x0f]
+		| CBGRAW;
 	v->output = vt52_putch;
 }
 
@@ -330,7 +338,7 @@ void vt52_putch(TEXTWIN *v, unsigned int c)
 			case '\007':		/* BELL */
 				if (con_fd)
 				{
-					/* xconout2: Bconout wrde zu deadlock fhren! */
+					/* xconout2: Bconout wï¿½rde zu deadlock fï¿½hren! */
 					char ch = 7;
 					Fwrite(con_fd, 1, &ch);
 				}

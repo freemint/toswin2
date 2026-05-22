@@ -34,7 +34,20 @@
 #define CSELECTED	0x20000L /* Character has been selected by mouse.  */
 #define CDIRTY		0x40000L /* Character has changed since last redraw.  */
 
-#define ATTRIBUTES (CBGCOL | CFGCOL | \
+/* CFGRAW/CBGRAW mark CFGCOL/CBGCOL as a literal VDI palette index rather
+   than an ANSI logical color.  Set by VT52 ESC b / ESC c (which apply the
+   official Atari pixel-value to VDI-index translation); cleared by any
+   ANSI color sequence.  Honored by use_ansi_colors() to bypass the ANSI
+   renderer for that channel.  CBGRAW << 1 == CFGRAW (parallels the
+   CBGCOL << 4 == CFGCOL relationship used by the SGR fg/bg swap).  */
+#define CBGRAW		0x80000L
+#define CFGRAW	       0x100000L
+
+/* All color-related bits, including the raw-VDI flags.  Use when copying
+   the color portion of cattr to blank cells.  */
+#define CCOLOR		(CBGCOL | CFGCOL | CBGRAW | CFGRAW)
+
+#define ATTRIBUTES (CCOLOR | \
 		    CE_BOLD | CE_LIGHT | CE_ITALIC | CE_UNDERLINE | \
 		    CINVERSE | CINVISIBLE | CPROTECTED)
 #define DECSC_FLAGS (TCHARSET_MASK | TORIGIN | TWRAPAROUND)
@@ -172,7 +185,7 @@ struct textwin
 #define TAB_ATARI		0x0000	/* normal Atari */
 #define TAB_ISO			0x0001	/* ISO 8859-1 Latin1 */
 
-/* Gr”žen des Textfensters berechnen */
+/* Grï¿½ï¿½en des Textfensters berechnen */
 #define SCROLLBACK(t)	((t)->miny)
 #define NROWS(t) 	((t)->maxy - (t)->miny)
 #define NCOLS(t) 	((t)->maxx)

@@ -31,6 +31,25 @@ const int ansi2vdi[8] = { 1, 10, 11, 14, 12, 15, 13, 8 };
 const int vdi2ansi[8] = { 7, 0, 1, 2, 4, 6, 3, 5 };
 const int ansibright2vdi[8] = { 9, 2, 3, 6, 4, 7, 5, 0 };
 
+/* Atari/DRI 16-color VT52 pixel value -> VDI palette index, per the
+   standard Atari color assignments:
+
+     pixel  VDI  name              pixel  VDI  name
+       0     0   WHITE               8     9   LBLACK (dark grey)
+       1     2   RED                 9    10   LRED
+       2     3   GREEN              10    11   LGREEN
+       3     6   YELLOW             11    14   LYELLOW
+       4     4   BLUE               12    12   LBLUE
+       5     7   MAGENTA            13    15   LMAGENTA
+       6     5   CYAN               14    13   LCYAN
+       7     8   LWHITE             15     1   BLACK
+                 (light grey)
+ */
+const unsigned char vt52_pixel_to_vdi[16] = {
+	 0,  2,  3,  6,  4,  7,  5,  8,
+	 9, 10, 11, 14, 12, 15, 13,  1
+};
+
 struct rgb {
 	short int red, green, blue;
 };
@@ -169,10 +188,10 @@ set_ansi_fg_color (TEXTWIN* tw, int color)
 	color -= 48;
 
 	if (color == ANSI_DEFAULT) {
-		tw->curr_cattr = (tw->curr_cattr & ~CFGCOL) |
+		tw->curr_cattr = (tw->curr_cattr & ~(CFGCOL | CFGRAW)) |
 			(tw->cfg->fg_color << 4);
 	} else if (color >= 0 && color < 8) {
-		tw->curr_cattr = (tw->curr_cattr & ~CFGCOL) |
+		tw->curr_cattr = (tw->curr_cattr & ~(CFGCOL | CFGRAW)) |
 			(color << 4);
 	} else if (color == 'M') {
 		tw->curr_cattr = (tw->curr_cattr & ~CE_ANSI_EFFECTS) |
@@ -189,7 +208,7 @@ set_ansi_bg_color (TEXTWIN* tw, int color)
 	color -= 48;
 
 	if (color == ANSI_DEFAULT || (color >= 0 && color < 8))
-		tw->curr_cattr = (tw->curr_cattr & ~CBGCOL) | color;
+		tw->curr_cattr = (tw->curr_cattr & ~(CBGCOL | CBGRAW)) | color;
 }
 
 /* Calculate the difference between two colors.  */
@@ -245,33 +264,44 @@ use_ansi_colors (TEXTWIN* tw, unsigned long flag,
 	if (!tw->vdi_colors) {
 		*texteffects &= ~CE_ANSI_EFFECTS;
 
-		if (*fgcolor == ANSI_DEFAULT) {
-			*fgcolor = tw->cfg->fg_color;
-			if (tw->cfg->fg_effects & CE_BOLD)
-				flag |= CE_BOLD;
-			else if (tw->cfg->fg_effects & CE_LIGHT)
-				flag |= CE_LIGHT;
-		}
-
-		if (*fgcolor >= 0 && *fgcolor <= 7) {
-			*texteffects &= ~CE_ANSI_EFFECTS;
-
-			if (flag & CE_BOLD) {
-				*texteffects |=
-					renderer[*fgcolor].bright_effects;
-				*fgcolor = renderer[*fgcolor].bright;
-			} else if (flag & CE_LIGHT) {
-				*texteffects |=
-					renderer[*fgcolor].hbright_effects;
-				*fgcolor = renderer[*fgcolor].hbright;
-			} else {
-				*fgcolor = renderer[*fgcolor].normal;
-			}
+		/* Foreground.  CFGRAW means the value is already a literal
+		   VDI palette index (set by a VT52 ESC b sequence); leave
+		   it alone.  Otherwise apply the ANSI logical-color mapping
+		   as before.  */
+		if (flag & CFGRAW) {
+			/* *fgcolor already holds the VDI palette index.  */
 		} else {
-			*fgcolor &= 0xf;
+			if (*fgcolor == ANSI_DEFAULT) {
+				*fgcolor = tw->cfg->fg_color;
+				if (tw->cfg->fg_effects & CE_BOLD)
+					flag |= CE_BOLD;
+				else if (tw->cfg->fg_effects & CE_LIGHT)
+					flag |= CE_LIGHT;
+			}
+
+			if (*fgcolor >= 0 && *fgcolor <= 7) {
+				*texteffects &= ~CE_ANSI_EFFECTS;
+
+				if (flag & CE_BOLD) {
+					*texteffects |=
+						renderer[*fgcolor].bright_effects;
+					*fgcolor = renderer[*fgcolor].bright;
+				} else if (flag & CE_LIGHT) {
+					*texteffects |=
+						renderer[*fgcolor].hbright_effects;
+					*fgcolor = renderer[*fgcolor].hbright;
+				} else {
+					*fgcolor = renderer[*fgcolor].normal;
+				}
+			} else {
+				*fgcolor &= 0xf;
+			}
 		}
 
-		if (*bgcolor >= 0 && *bgcolor <= 7) {
+		/* Background.  Same treatment for CBGRAW.  */
+		if (flag & CBGRAW) {
+			/* *bgcolor already holds the VDI palette index.  */
+		} else if (*bgcolor >= 0 && *bgcolor <= 7) {
 			*bgcolor = renderer[*bgcolor].normal;
 		} else if (*bgcolor == ANSI_DEFAULT) {
 			*bgcolor = tw->cfg->bg_color & 0x7;

@@ -292,8 +292,7 @@ void clrline(TEXTWIN *v, short r)
 	for (i = v->maxx-1; i >= 0; --i)
 	{
 		v->cdata[r][i] = ' ';
-		v->cflags[r][i] = v->curr_cattr &
-			(CBGCOL | CFGCOL);
+		v->cflags[r][i] = v->curr_cattr & CCOLOR;
 	}
 	v->dirty[r] = ALLDIRTY;
 }
@@ -316,7 +315,7 @@ void clear(TEXTWIN *v)
 void clrchar(TEXTWIN *v, short x, short y)
 {
 	v->cdata[y][x] = ' ';
-	v->cflags[y][x] = CDIRTY | (v->curr_cattr & (CBGCOL|CFGCOL));
+	v->cflags[y][x] = CDIRTY | (v->curr_cattr & CCOLOR);
 	v->dirty[y] |= SOMEDIRTY;
 }
 
@@ -379,7 +378,7 @@ void delete_char(TEXTWIN *v, short x, short y)
 		v->cflags[y][i] = v->cflags[y][i+1] | CDIRTY;
 	}
 	v->cdata[y][v->maxx-1] = ' ';
-	v->cflags[y][v->maxx-1] = CDIRTY | (v->curr_cattr & (CBGCOL|CFGCOL));
+	v->cflags[y][v->maxx-1] = CDIRTY | (v->curr_cattr & CCOLOR);
 	v->dirty[y] |= SOMEDIRTY;
 	v->do_wrap = 0;
 }
@@ -449,16 +448,19 @@ inverse_video (TEXTWIN* tw, int flag)
 /* Reset colors to original colors (i. e. those that were
  * configured in the window configuration dialog).
  */
-void 
+void
 original_colors(TEXTWIN *v)
 {
 	if (v->cfg->vdi_colors) {
+		/* Defaults are literal VDI palette indices.  */
 		v->curr_cattr = (v->curr_cattr &
-			~(CFGCOL | CBGCOL)) |
-			COLORS (v->cfg->fg_color, v->cfg->bg_color);
+			~(CFGCOL | CBGCOL | CFGRAW | CBGRAW)) |
+			COLORS (v->cfg->fg_color, v->cfg->bg_color) |
+			CFGRAW | CBGRAW;
 	} else {
+		/* Defaults are ANSI logical (ANSI_DEFAULT sentinel).  */
 		v->curr_cattr = (v->curr_cattr &
-			~(CFGCOL | CBGCOL | CE_ANSI_EFFECTS)) |
+			~(CFGCOL | CBGCOL | CE_ANSI_EFFECTS | CFGRAW | CBGRAW)) |
 			COLORS (ANSI_DEFAULT, ANSI_DEFAULT);
 	}
 }
@@ -522,7 +524,7 @@ vt_reset (struct textwin* tw, bool full, bool saved)
 	if (full) {
 		tw->curr_tflags |= TWRAPAROUND;
 		tw->curr_tflags &= ~TINSERT;
-		tw->curr_cattr &= ~(ATTRIBUTES ^ CBGCOL ^ CFGCOL);
+		tw->curr_cattr &= ~(ATTRIBUTES ^ CCOLOR);
 
 		reset_tabs (tw);
 		tw->curs_mode = CURSOR_NORMAL;
@@ -542,7 +544,7 @@ vt_reset (struct textwin* tw, bool full, bool saved)
 	} else {
 		tw->curr_tflags |= TWRAPAROUND;  /* FIXME: Read from config.  */
 		tw->curr_tflags &= ~TINSERT;
-		tw->curr_cattr &= ~(ATTRIBUTES ^ CBGCOL ^ CFGCOL);
+		tw->curr_cattr &= ~(ATTRIBUTES ^ CCOLOR);
 		tw->saved_x = tw->saved_y = -1;
 	}
 	

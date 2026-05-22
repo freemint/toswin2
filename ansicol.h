@@ -44,6 +44,10 @@ extern const int ansi2vdi[8];
 extern const int vdi2ansi[8];
 extern const int ansibright2vdi[8];
 
+/* Atari/DRI 16-color VT52 pixel value -> VDI palette index mapping.
+   Used by the VT52 ESC b / ESC c handlers in vt52.c and twterm.c.  */
+extern const unsigned char vt52_pixel_to_vdi[16];
+
 extern char* tw52_env;
 extern char* tw100_env;
 extern char* colorterm_env;
