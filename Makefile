@@ -64,26 +64,11 @@ all-targets:
 		|| case "$$amf" in *=*) exit 1;; *k*) fail=yes;; *) exit 1;; esac; \
 	done && test -z "$$fail"
 
-doc/toswin2.hyp: doc/toswin2.stg
-	@if test "$(HCP)" != ""; then hcp="$(HCP)"; else hcp=hcp; fi; \
-	if test "$$hcp" != "" && $$hcp --version >/dev/null 2>&1; then \
-		$$hcp -o $@ $<; \
-	else \
-		echo "HCP not found, help file not compiled" >&2; \
-	fi
+HCP ?= hcp
 
-doc/en/toswin2.hyp: doc/en/toswin2.stg
-	@if test "$(HCP)" != ""; then hcp="$(HCP)"; else hcp=hcp; fi; \
-	if test "$$hcp" != "" && $$hcp --version >/dev/null 2>&1; then \
-		$$hcp -o $@ $<; \
-	else \
-		echo "HCP not found, help file not compiled" >&2; \
-	fi
-
-doc/fr/toswin2.hyp: doc/fr/toswin2.stg
-	@if test "$(HCP)" != ""; then hcp="$(HCP)"; else hcp=hcp; fi; \
-	if test "$$hcp" != "" && $$hcp --version >/dev/null 2>&1; then \
-		$$hcp -o $@ $<; \
+%.hyp: %.stg
+	@if command -v $(HCP) >/dev/null 2>&1 && test -f $<; then \
+		$(HCP) -o $@ $<; \
 	else \
 		echo "HCP not found, help file not compiled" >&2; \
 	fi

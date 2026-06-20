@@ -74,3 +74,10 @@ link_file() {
 upload_file "$ARCHIVE_PATH" "${UPLOAD_DIR}/${PROJECT_DIR}/${ARCHIVE_NAME}"
 link_file "$ARCHIVE_NAME" "${LATEST_NAME}"
 
+if [ "$CPU_TARGET" = "000" ]
+then
+	upload_file "${INSTALL_DIR}/doc/en/toswin2.hyp" "${UPLOAD_DIR}/guides/toswin2.hyp"
+	upload_file "${INSTALL_DIR}/doc/de/toswin2.hyp" "${UPLOAD_DIR}/guides/toswin2_de.hyp"
+	upload_file "${INSTALL_DIR}/doc/fr/toswin2.hyp" "${UPLOAD_DIR}/guides/toswin2_fr.hyp"
+fi
+
