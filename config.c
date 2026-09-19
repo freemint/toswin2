@@ -529,7 +529,12 @@ void update_font(WINDOW *w, int id, int pts)
 /******************************************************************************/
 /* Dateioperationen																				*/
 /******************************************************************************/
-static char cfg_path[80] = "";
+#define CFGPATHLEN	256
+
+/* longest name this file appends to a directory taken from the environment */
+#define CFGSUFFIX	"defaults\\" CFGNAME
+
+static char cfg_path[CFGPATHLEN] = "";
 static FILE *fd;
 
 static bool path_from_env(char *env, char *path)
@@ -538,7 +543,8 @@ static bool path_from_env(char *env, char *path)
 	bool ret = FALSE;
 
 	p = getenv(env);
-	if (p != NULL)
+	/* the path is returned with a trailing backslash, hence the + 1 */
+	if (p != NULL && strlen(p) + 1 + sizeof(CFGSUFFIX) <= CFGPATHLEN)
 	{
 		strcpy(path, p);
 		ret = make_normalpath(path);
@@ -549,20 +555,14 @@ static bool path_from_env(char *env, char *path)
 static bool get_cfg_path(void)
 {
 	bool found = FALSE;
-	char env[256], p_for_save[256] = "";
+	char env[CFGPATHLEN], p_for_save[CFGPATHLEN] = "";
 
 	if (!gl_debug)
 	if (path_from_env("HOME", env)) 			/* 1. $HOME */
 	{
-		bool	h = FALSE;
-
 		strcpy(cfg_path, env);
 		strcat(cfg_path, CFGNAME);
-		if (p_for_save[0] == '\0')
-		{
-			h = TRUE;
-			strcpy(p_for_save, cfg_path);
-		}
+		strcpy(p_for_save, cfg_path);
 		found = file_exists(cfg_path);
 		if (!found)										/* 2. $HOME/defaults */
 		{
@@ -571,14 +571,14 @@ static bool get_cfg_path(void)
 			if (path_exists(cfg_path))
 			{
 				strcat(cfg_path, CFGNAME);
-				if (p_for_save[0] == '\0' || h)
-					strcpy(p_for_save, cfg_path);
+				strcpy(p_for_save, cfg_path);	/* takes precedence over $HOME */
 				found = file_exists(cfg_path);
 			}
 		}
 	}
 
-	if (!found && gl_appdir[0] != '\0')			/* 3. Startverzeichnis */
+	if (!found && gl_appdir[0] != '\0'			/* 3. Startverzeichnis */
+	    && strlen(gl_appdir) + sizeof(CFGNAME) <= CFGPATHLEN)
 	{
 		strcpy(cfg_path, gl_appdir);
 		strcat(cfg_path, CFGNAME);
