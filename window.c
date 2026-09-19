@@ -81,11 +81,8 @@ static WINDOW *get_top(void)
 
 static void top_win(WINDOW *w)
 {
-	if (gl_topwin != w)
-	{
-		gl_topwin = w;
-		wind_set(w->handle, WF_TOP, 0, 0, 0, 0);
-	}
+	gl_topwin = w;
+	wind_set(w->handle, WF_TOP, 0, 0, 0, 0);
 }
 
 static void ontop_win(WINDOW *w)
@@ -95,8 +92,8 @@ static void ontop_win(WINDOW *w)
 
 static void untop_win(WINDOW *w)
 {
-	(void) w;
-	gl_topwin = get_top();
+	WINDOW *top = get_top();
+	gl_topwin = (top == w) ? NULL : top;
 }
 					
 static void bottom_win(WINDOW *w)
