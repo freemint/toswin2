@@ -387,8 +387,8 @@ add_fd(int fd)
 #define READBUFSIZ 4096 	/* 256 */
 static char buf[READBUFSIZ];
 
-void
-fd_input(void)
+int
+fd_input(void)	/* non-zero when any window received data */
 {
 	long readfds, r, checkdead;
 	WINDOW *w;
@@ -459,6 +459,7 @@ fd_input(void)
 
 		refresh_textwin(t, FALSE);
 	}
+	return r > 0;
 }
 
 /*
